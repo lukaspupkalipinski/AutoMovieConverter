@@ -13,7 +13,7 @@ __author__ = "Lukas Pupka-Lipinski"
 __copyright__ = "Copyright 2018, AutoMovieConverter"
 __credits__ = [""]
 __license__ = "GPL"
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __maintainer__ = "Lukas Pupka-Lipinski"
 __email__ = "support@lpl-mind.de"
 __status__ = "Dev"
@@ -139,7 +139,7 @@ for (dirpath, dirnames, filenames) in walk(path):
                 process.wait()
 
                 process = subprocess.Popen(
-                    Movecommand % (convered,orign), shell=True,
+                    Movecommand % (convered,dirpath+os.sep+justname+".mkv"), shell=True,
                     stdout=subprocess.PIPE)
                 process.wait()
 
