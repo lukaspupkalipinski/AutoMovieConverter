@@ -1,0 +1,57 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:          automovieconverter
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: automovieconverter
+# Description:       This file should be used to construct scripts to be
+#                    placed in /etc/init.d.
+### END INIT INFO
+
+# Author: Lukas Pupka-Lipnski
+
+DESC="automovieconverter"
+NAME=python
+DAEMON=/usr/bin/$NAME
+DAEMON_ARGS="/usr/share/automovieconverter/automovieconverter.py /sharedfolders/Movies/Data-movie/Movies/ R"
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+
+do_start()
+{
+  start-stop-daemon --start --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_ARGS
+  return 0
+}
+
+do_stop() {
+  start-stop-daemon --stop --signal 1 --quiet --pidfile $PIDFILE --name $NAME
+  return 0
+}
+
+case "$1" in
+  start)
+    [ "$VERBOSE" != no ] && echo "Starting $DESC" "$NAME"
+    do_start
+    ;;
+  stop)
+    [ "$VERBOSE" != no ] && echo "Stopping $DESC" "$NAME"
+    do_stop
+    ;;
+  restart)
+    echo "Restarting $DESC" "$NAME"
+    do_stop
+    case "$?" in
+      0|1)
+        do_start
+        ;;
+    esac
+    ;;
+
+  *)
+    echo "Usage: $SCRIPTNAME {start|stop|restart}" >&2
+    exit 3
+    ;;
+esac
