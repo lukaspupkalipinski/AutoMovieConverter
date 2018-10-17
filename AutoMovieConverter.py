@@ -27,7 +27,7 @@ Movecommand="mv \"%s\" \"%s\""
 
 filter=r".*\.(avi|mkv|flv|flv|avi|MTS|M2TS|mov|wmv|mp4|m4v|mpg|mp2|mpeg|mpe|mpv|mpg|mpeg|m2v|m4v|flv|f4v)"
 
-def validation(origin, converted):
+def checkvalid(origin, converted):
     """
     Checks if to media files has the some hour and minute duration. seconds are not checked
     :param origin: the first media file
@@ -77,6 +77,11 @@ def validation(origin, converted):
         return False
 
 def checkifneedconvert(file):
+    """
+    Checks if movie file is converted via libx264
+    :param file:
+    :return:
+    """
     process = subprocess.Popen(FFMpegcheck2command % file,
                                shell=True, stdout=subprocess.PIPE)
     process.wait()
@@ -87,22 +92,6 @@ def checkifneedconvert(file):
             return False
     return True
 
-def removefile(file):
-    process = subprocess.Popen(
-        Removecommand % (file), shell=True,
-        stdout=subprocess.PIPE)
-    process.wait()
-
-def renamefile(file,target):
-    process = subprocess.Popen(
-        Movecommand % (file, target), shell=True,
-        stdout=subprocess.PIPE)
-    process.wait()
-
-def convertfile(file,target):
-    process = subprocess.Popen(FFmpegx264command % (file,target), shell=True,
-                               stdout=subprocess.PIPE)
-    process.wait()
 
 parser = argparse.ArgumentParser(description='Convert all Movie files to a specific format.')
 parser.add_argument('infile', metavar='inputfile', nargs=1,
@@ -129,26 +118,45 @@ filter=vars(args)['f']
 f = []
 for (dirpath, dirnames, filenames) in walk(path):
     for filename in filenames:
-
         match=re.match(filter,filename)
         if match and checkifneedconvert(dirpath+os.sep+filename):
             justname = filename.split(".")[:-1][0]
             orign=dirpath+os.sep+filename
             convered=dirpath+os.sep+justname+"-converted.mkv"
 
+
             #remove if convered file exists but is corrupted
             if (os.path.isfile(convered)):
-                if (not validation(orign,convered)):
-                    removefile(convered)
+                if (not checkvalid(orign,convered)):
+                    process = subprocess.Popen(
+                        Removecommand % (convered), shell=True,
+                        stdout=subprocess.PIPE)
+                    process.wait()
+
 
             if (not os.path.isfile(convered)):
-                convertfile(orign, dirpath + os.sep + justname)
+                process = subprocess.Popen(FFmpegx264command%(orign,dirpath+os.sep+justname), shell=True, stdout=subprocess.PIPE)
+                process.wait()
 
             #remove file and rename if file is valid
-            if (remove and validation(orign,convered)):
-                removefile(orign)
-                renamefile(convered, dirpath + os.sep + justname + ".mkv")
+            if (remove and checkvalid(orign,convered)):
+                process = subprocess.Popen(
+                    Removecommand % (orign), shell=True,
+                    stdout=subprocess.PIPE)
+                process.wait()
+
+                process = subprocess.Popen(
+                    Movecommand % (convered,dirpath+os.sep+justname+".mkv"), shell=True,
+                    stdout=subprocess.PIPE)
+                process.wait()
+
+
+
 
     if(not recursive):
         break
+
+
+
+
 
