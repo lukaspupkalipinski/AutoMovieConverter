@@ -77,6 +77,11 @@ def checkvalid(origin, converted):
         return False
 
 def checkifneedconvert(file):
+    """
+    Checks if movie file is converted via libx264
+    :param file:
+    :return:
+    """
     process = subprocess.Popen(FFMpegcheck2command % file,
                                shell=True, stdout=subprocess.PIPE)
     process.wait()
