@@ -5,6 +5,8 @@ The settings converts each movie file into .mkv with x264 and mp3.
 Its also double check if the file is converted correctly.
 With an option your are able to delete the orign file.
 
+for mor information visit LPL-mind.de.
+
 ## Prerequisites
 ```
 apt-get install FFMpeg python
